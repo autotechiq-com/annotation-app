@@ -1,0 +1,12 @@
+query GetCaptionVersionByCaptionId($caption_id: Int!) {
+  annotation_caption_version(where: { caption_id: { _eq: $caption_id } }) {
+    interpretation
+    interpretation_ru
+    caption_id
+    id
+    user_id
+    version
+    created_at
+    updated_at
+  }
+}

@@ -1,0 +1,7 @@
+mutation InsertCaptionVersion($objects: [annotation_caption_version_insert_input!]!) {
+  insert_annotation_caption_version(objects: $objects) {
+    returning {
+      id
+    }
+  }
+}

@@ -1,0 +1,7 @@
+mutation InsertAnnotationComment($objects: [annotation_comment_insert_input!] = {}) {
+  insert_annotation_comment(objects: $objects) {
+    returning {
+      id
+    }
+  }
+}

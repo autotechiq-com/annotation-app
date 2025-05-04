@@ -1,0 +1,7 @@
+mutation InsertUser($role_id: Int, $email: String!, $username: String!) {
+  insert_annotation_user(objects: { role_id: $role_id, email: $email, username: $username }) {
+    returning {
+      id
+    }
+  }
+}

@@ -1,0 +1,38 @@
+query GetUser {
+  annotation_user {
+    name
+    password
+    username
+    id
+    role_id
+    email
+    created_at
+    updated_at
+  }
+}
+
+query GetUserByEmail($email: String = "") {
+  annotation_user(where: { email: { _eq: $email } }) {
+    name
+    password
+    username
+    id
+    role_id
+    email
+    created_at
+    updated_at
+  }
+}
+
+query GetUserByRole($role_id: Int!) {
+  annotation_user(where: { role_id: { _eq: $role_id } }) {
+    name
+    password
+    username
+    id
+    role_id
+    email
+    created_at
+    updated_at
+  }
+}

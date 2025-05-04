@@ -1,0 +1,7 @@
+mutation InsertActionLog($objects: [annotation_action_log_insert_input!] = {}) {
+  insert_annotation_action_log(objects: $objects) {
+    returning {
+      id
+    }
+  }
+}

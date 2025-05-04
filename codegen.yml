@@ -1,0 +1,11 @@
+schema:
+  - ${HASURA_ENDPOINT}:
+      headers:
+        Authorization: Bearer ${HASURA_SECRET}
+documents: 'src/graphql/**/*.graphql'
+generates:
+  src/graphql/types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-document-nodes

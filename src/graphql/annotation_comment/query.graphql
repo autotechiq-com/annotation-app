@@ -1,0 +1,17 @@
+query GetCommentByCaptionId($caption_id: Int!) {
+  annotation_comment(where: { caption_id: { _eq: $caption_id } }) {
+    comment
+    caption_id
+    caption_version
+    current_version
+    id
+    user_id
+    user {
+      email
+      id
+      username
+    }
+    created_at
+    updated_at
+  }
+}

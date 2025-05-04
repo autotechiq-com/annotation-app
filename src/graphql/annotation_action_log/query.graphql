@@ -1,0 +1,22 @@
+query GetActionLogByCaptionId($caption_id: Int = 10) {
+  annotation_action_log(where: { caption_id: { _eq: $caption_id } }) {
+    action_id
+    caption_id
+    caption_version
+    id
+    target_user_id
+    user_id
+    created_at
+    updated_at
+    user {
+      username
+      email
+      id
+    }
+    action {
+      name
+      name_ru
+      id
+    }
+  }
+}
