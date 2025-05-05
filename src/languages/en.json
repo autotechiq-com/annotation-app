@@ -1,6 +1,7 @@
 {
   "Lang": "en",
   "Global": {
+    "reject": "Reject",
     "login_welcome": "Welcome back",
     "login_description": "Please enter login and password to continue",
     "meta_title": "Argus",
@@ -48,6 +49,10 @@
     "comment": "Comments",
     "history": "History",
     "no_captions": "No captions",
-    "select_target_user": "Select target user"
+    "select_target_user": "Select target user",
+    "captions_to_check": "Captions to check",
+    "clear_target_user": "Clear target user",
+    "inital_version": "Initial version",
+    "new_version": "New version"
   }
 }

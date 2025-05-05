@@ -1,47 +1,18 @@
 'use client';
 
-import {
-  Cloud,
-  CreditCard,
-  Github,
-  Keyboard,
-  LifeBuoy,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  PlusCircle,
-  Settings,
-  User2,
-  UserPlus,
-  Users,
-} from 'lucide-react';
+import { LogOut, User2 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useDictionary } from './dictionary-provider';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
+import { useDictionary } from './dictionary-provider';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 export function User() {
   const router = useRouter();
   const t = useDictionary();
 
-  const { data: session, isPending, error, refetch } = authClient.useSession();
+  const { data: session } = authClient.useSession();
 
   return (
     <DropdownMenu>

@@ -1,17 +1,15 @@
 'use client';
 
-import { Bold, Heading1, Heading2, Italic, RemoveFormatting, Type, Underline as UnderlineIcon } from 'lucide-react';
-import { useDictionary } from './dictionary-provider';
-import { ScrollArea } from './ui/scroll-area';
-import { Button } from './ui/button';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
+import BulletList from '@tiptap/extension-bullet-list';
 import Highlight from '@tiptap/extension-highlight';
-import Heading from '@tiptap/extension-heading';
 import Underline from '@tiptap/extension-underline';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { Bold, Italic, ListOrdered, RemoveFormatting, Underline as UnderlineIcon } from 'lucide-react';
+import { useDictionary } from './dictionary-provider';
+import { Button } from './ui/button';
+import { ScrollArea } from './ui/scroll-area';
 
-import { Markdown } from 'tiptap-markdown';
-import { cn } from '@/lib/utils';
 import {
   GetCaptionVersionByCaptionId,
   GetCaptionVersionByCaptionIdQuery,
@@ -24,11 +22,13 @@ import {
   UpdateAnnotationCaptionMutation,
 } from '@/graphql/types';
 import fetchClient from '@/lib/fetch-client';
+import { cn } from '@/lib/utils';
+import { targetUserIdAtom } from '@/state/state';
+import { useAtom } from 'jotai';
 import { useState } from 'react';
+import { Markdown } from 'tiptap-markdown';
 import { LoadingSpinner } from './ui/loading-spinner';
 import { UserSelect } from './user-select';
-import { useAtom } from 'jotai';
-import { targetUserIdAtom } from '@/state/state';
 
 const buttonStyle = {
   base: 'flex items-center justify-center h-8 w-8 border rounded-md cursor-pointer hover:bg-background-secondary shadow-2xs',
@@ -41,19 +41,32 @@ export function Editor({
   userId,
   userRoleId,
   refetchUserCaption,
+  refetchFreeCaption,
 }: {
   content: string;
   captionId: number;
   userId: number;
   userRoleId: number;
   refetchUserCaption: any;
+  refetchFreeCaption: any;
 }) {
   const t = useDictionary();
   const [loading, setLoading] = useState(false);
   const [tagetUserId] = useAtom(targetUserIdAtom);
   const editor = useEditor(
     {
-      extensions: [StarterKit, Markdown, Highlight, Underline],
+      extensions: [
+        StarterKit,
+        Markdown,
+        Highlight,
+        Underline,
+        BulletList.configure({
+          HTMLAttributes: {
+            class: 'list-custom-disc',
+          },
+        }),
+      ],
+
       content: content,
     },
     [content]
@@ -98,25 +111,50 @@ export function Editor({
         variables: { role_id: 3 },
       });
 
+      const getTargetUser = (
+        currentUserRoleId: number,
+        targetUserId: number | undefined,
+        randomUserRole2: GetUserByRoleQuery | undefined,
+        randomUserRole3: GetUserByRoleQuery | undefined
+      ): number | undefined => {
+        if (targetUserId) {
+          return +targetUserId;
+        }
+        if (currentUserRoleId === 1) {
+          return randomUserRole3?.annotation_user?.[0]?.id;
+        }
+        if (currentUserRoleId === 2) {
+          return randomUserRole3?.annotation_user?.[0]?.id;
+        }
+        if (currentUserRoleId === 3) {
+          return undefined;
+        }
+      };
+
+      const targetId = getTargetUser(userRoleId, tagetUserId ? +tagetUserId : undefined, userRole2, userRole3);
+
       const data =
         t.Lang === 'en'
           ? {
-              id: captionId,
               status_id: 4,
-              user_id: (tagetUserId ? +tagetUserId : undefined) ?? userRole2.annotation_user?.[0]?.id ?? userRole3.annotation_user?.[0]?.id,
+              user_id: targetId,
               interpretation: editor?.storage.markdown.getMarkdown(),
             }
           : {
-              id: captionId,
               status_id: 4,
-              user_id: (tagetUserId ? +tagetUserId : undefined) ?? userRole2.annotation_user?.[0]?.id ?? userRole3.annotation_user?.[0]?.id,
+              user_id: targetId,
               interpretation_ru: editor?.storage.markdown.getMarkdown(),
             };
 
-      await fetchClient<UpdateAnnotationCaptionMutation>({
+      const res = await fetchClient<UpdateAnnotationCaptionMutation>({
         query: UpdateAnnotationCaption,
-        variables: data,
+        variables: {
+          id: captionId,
+          _set: data,
+        },
       });
+
+      console.log(res);
 
       await fetchClient({
         query: InsertActionLog,
@@ -129,13 +167,13 @@ export function Editor({
             },
             {
               caption_id: captionId,
-              user_id: (tagetUserId ? +tagetUserId : undefined) ?? userRole2.annotation_user?.[0]?.id ?? userRole3.annotation_user?.[0]?.id,
+              user_id: targetId,
               action_id: 1,
             },
           ],
         },
       });
-
+      await refetchFreeCaption();
       await refetchUserCaption();
     }
 
@@ -161,9 +199,45 @@ export function Editor({
       query: UpdateAnnotationCaption,
       variables: {
         id: captionId,
-        status_id: 1,
+        _set: {
+          status_id: 1,
+          user_id: null,
+        },
       },
     });
+
+    await refetchUserCaption();
+
+    setLoading(false);
+  };
+
+  const onReject = async () => {
+    setLoading(true);
+    await fetchClient({
+      query: InsertActionLog,
+      variables: {
+        objects: [
+          {
+            caption_id: captionId,
+            user_id: userId,
+            action_id: 3,
+          },
+        ],
+      },
+    });
+
+    await fetchClient<UpdateAnnotationCaptionMutation>({
+      query: UpdateAnnotationCaption,
+      variables: {
+        id: captionId,
+        _set: {
+          status_id: 2,
+          user_id: null,
+        },
+      },
+    });
+
+    await refetchUserCaption();
 
     setLoading(false);
   };
@@ -197,25 +271,33 @@ export function Editor({
           <div className={buttonStyle.base} onClick={() => editor.chain().focus().unsetAllMarks().run()}>
             <RemoveFormatting className="h-4 w-4" />
           </div>
+          <div className={buttonStyle.base} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+            <ListOrdered className="h-4 w-4" />
+          </div>
         </div>
         {/* <Button variant="outline" size="sm" onClick={() => editor.commands.insertContent(content)}>
           {t.Global.discard_changes}
         </Button> */}
       </div>
-      <ScrollArea className="relative h-fit max-h-full overflow-y-auto pl-1 pr-6 text-sm leading-7 rounded-none">
-        <EditorContent classID="editor" editor={editor} />
+      <ScrollArea className="relative h-fit max-h-full overflow-y-auto pl-1 pr-6 text-sm leading-7 rounded-none default-format-render">
+        <EditorContent className="list" classID="editor" editor={editor} />
       </ScrollArea>
 
-      <div className="relative flex justify-between items-center gap-2 mt-6">
+      <div className="relative flex justify-between items-start gap-2 mt-6">
         <UserSelect userRoleId={userRoleId} />
         <div className="flex gap-2">
-          <Button disabled={loading} className="w-fit" onClick={() => onSubmit()}>
+          <Button disabled={loading || (userRoleId === 3 && !tagetUserId)} className="w-fit" onClick={() => onSubmit()}>
             {loading && <LoadingSpinner />} {t.Global.save_next}
           </Button>
           {userRoleId === 3 ? (
-            <Button disabled={loading} className="w-fit bg-green-700" onClick={() => onApprove()}>
-              {loading && <LoadingSpinner />} {t.Global.approve}
-            </Button>
+            <div className="flex gap-2">
+              <Button disabled={loading} variant="destructive" onClick={() => onReject()}>
+                {loading && <LoadingSpinner />} {t.Global.reject}
+              </Button>
+              <Button disabled={loading} className="w-fit bg-green-700" onClick={() => onApprove()}>
+                {loading && <LoadingSpinner />} {t.Global.approve}
+              </Button>
+            </div>
           ) : null}
         </div>
       </div>

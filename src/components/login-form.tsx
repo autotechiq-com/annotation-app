@@ -1,19 +1,19 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LanguageToggle } from './lang-toggle';
-import { useDictionary } from './dictionary-provider';
-import { useState } from 'react';
-import { Alert } from './ui/alert';
-import { AlertTriangle } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
 import { InsertUser, InsertUserMutation } from '@/graphql/types';
+import { authClient } from '@/lib/auth-client';
 import fetchClient from '@/lib/fetch-client';
+import { cn } from '@/lib/utils';
+import { AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useDictionary } from './dictionary-provider';
+import { LanguageToggle } from './lang-toggle';
+import { Alert } from './ui/alert';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const t = useDictionary();
@@ -37,7 +37,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
       return;
     }
 
-    const { data, error } = await authClient.signIn.email({
+    const { error } = await authClient.signIn.email({
       email,
       password,
       callbackURL: '/dashboard',
@@ -58,7 +58,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
       return;
     }
 
-    const { data, error } = await authClient.signUp.email(
+    await authClient.signUp.email(
       {
         email,
         password,
@@ -66,10 +66,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
         callbackURL: '/dashboard',
       },
       {
-        onRequest: (ctx) => {
+        onRequest: () => {
           setLoading(true);
         },
-        onSuccess: async (ctx) => {
+        onSuccess: async () => {
           const res = await fetchClient<InsertUserMutation>({
             query: InsertUser,
             variables: {

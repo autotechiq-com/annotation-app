@@ -33,7 +33,7 @@ query GetCaptionByUserId($user_id: Int!) {
 }
 
 query GetCaptionWithoutUserId {
-  annotation_caption(where: { user_id: { _is_null: true } }, limit: 1) {
+  annotation_caption(where: { _and: { user_id: { _is_null: true }, status_id: { _is_null: true } } }, limit: 1) {
     image_path
     interpretation
     interpretation_ru
@@ -46,5 +46,13 @@ query GetCaptionWithoutUserId {
     version
     created_at
     updated_at
+  }
+}
+
+query GetCaptionCountByUserId($user_id: Int = 10) {
+  annotation_caption_aggregate(where: { user_id: { _eq: $user_id } }) {
+    aggregate {
+      count
+    }
   }
 }

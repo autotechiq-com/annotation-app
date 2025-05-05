@@ -10,7 +10,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { useDictionary } from './dictionary-provider';
 import { Button } from './ui/button';
-import { object } from 'zod';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
 

@@ -23,7 +23,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useDictionary } from '@/components/dictionary-provider';
 import { Comment } from '@/components/comment';
 import { Logs } from '@/components/logs';
-import { object } from 'zod';
+import { CaptionCounter } from '@/components/caption-counter';
 
 export default function DashboardMainPage() {
   const t = useDictionary();
@@ -50,21 +50,29 @@ export default function DashboardMainPage() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: freeCaption, isLoading: isFreeCaptionLoading } = useQuery({
+  const {
+    data: freeCaption,
+    isLoading: isFreeCaptionLoading,
+    refetch: refetchFreeCaption,
+  } = useQuery({
     queryKey: ['annotation_free_caption'],
     queryFn: () => fetchClient<GetCaptionWithoutUserIdQuery>({ query: GetCaptionWithoutUserId }),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
+
+  console.log('freeCaption', freeCaption);
 
   async function updateCaption() {
     await fetchClient<UpdateAnnotationCaptionMutation>({
       query: UpdateAnnotationCaption,
       variables: {
         id: freeCaption?.annotation_caption?.[0]?.id,
-        user_id: user?.annotation_user?.[0]?.id,
-        status_id: 3,
-        interpretation: freeCaption?.annotation_caption?.[0]?.interpretation,
-        interpretation_ru: freeCaption?.annotation_caption?.[0]?.interpretation_ru,
+        _set: {
+          user_id: user?.annotation_user?.[0]?.id,
+          status_id: 3,
+          // interpretation: freeCaption?.annotation_caption?.[0]?.interpretation,
+          // interpretation_ru: freeCaption?.annotation_caption?.[0]?.interpretation_ru,
+        },
       },
     });
     await fetchClient({
@@ -79,6 +87,7 @@ export default function DashboardMainPage() {
         ],
       },
     });
+    await refetchFreeCaption();
     await refetchUserCaption();
   }
 
@@ -129,6 +138,11 @@ export default function DashboardMainPage() {
   return (
     <Container className="relative pt-20 h-full grid grid-cols-[1fr_2fr_1fr] gap-6">
       <div className="flex flex-col gap-6">
+        <Card className="shadow-none h-fit">
+          <CardContent>
+            <CaptionCounter userId={user?.annotation_user?.[0]?.id ?? 0} />
+          </CardContent>
+        </Card>
         <Card className="shadow-none h-fit max-h-[calc(100vh-150px)]">
           <CardContent>
             <ImagePreview src={`${process.env.NEXT_PUBLIC_IMAGES_ORIGIN}/${userCaption?.annotation_caption?.[0]?.image_path}`} />
@@ -136,7 +150,7 @@ export default function DashboardMainPage() {
         </Card>
         <Card className="shadow-none h-fit max-h-[calc(100vh-150px)]">
           <CardContent>
-            <Logs captionId={userCaption?.annotation_caption?.[0]?.id ?? 0} />
+            <Logs captionId={userCaption?.annotation_caption?.[0]?.id ?? 0} captionData={userCaption?.annotation_caption?.[0]} />
           </CardContent>
         </Card>
       </div>
@@ -144,6 +158,7 @@ export default function DashboardMainPage() {
         <CardContent>
           <Editor
             refetchUserCaption={refetchUserCaption}
+            refetchFreeCaption={refetchFreeCaption}
             content={text}
             captionId={userCaption?.annotation_caption?.[0]?.id ?? 0}
             userId={user?.annotation_user?.[0]?.id ?? 0}

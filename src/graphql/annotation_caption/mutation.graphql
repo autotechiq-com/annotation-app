@@ -1,14 +1,5 @@
-mutation UpdateAnnotationCaption(
-  $id: Int!
-  $user_id: Int!
-  $status_id: Int!
-  $interpretation: String = ""
-  $interpretation_ru: String = ""
-) {
-  update_annotation_caption(
-    where: { id: { _eq: $id } }
-    _set: { user_id: $user_id, status_id: $status_id, interpretation: $interpretation, interpretation_ru: $interpretation_ru }
-  ) {
+mutation UpdateAnnotationCaption($id: Int!, $_set: annotation_caption_set_input) {
+  update_annotation_caption(where: { id: { _eq: $id } }, _set: $_set) {
     returning {
       id
     }
