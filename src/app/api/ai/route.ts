@@ -3,11 +3,13 @@ import { NextResponse } from 'next/server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-export async function POST(request: Request) {
-  try {
+export async function POST(request: Request)
+{
+  try
+  {
     const { initial_text, instruction, image_url } = await request.json();
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro-preview-03-25' });
 
     const prompt = `У пользователя есть описание изображения:
 ${initial_text}
@@ -15,11 +17,41 @@ ${initial_text}
 Пользователь оставил следующую заметку/инструкцию к описанию:
 ${instruction}
 
-Перепиши описание изображения в соответствии с заметкой/инструкцией пользователя`;
+Перепиши описание изображения в соответствии с заметкой/инструкцией пользователя
+
+Если на изображении показаны какие-либо проблемы, пожалуйста, опишите их подробно и используйте следующий шаблон ответа:
+
+1. [Выявленные проблемы]:
+  * [Проблема 1]:
+    - Название компонента: ...
+    - Состояние: ...
+    - Описание проблемы: ...
+    - Серьезность: незначительная, значительная, критическая
+  * [Проблема 2]:
+    - Название компонента: ...
+    - Состояние: ...
+    - Описание проблемы: ...
+    - Серьезность: незначительная, значительная, критическая
+  * [Проблема 3]:
+    - Название компонента: ...
+    - Состояние: ...
+    - Описание проблемы: ...
+    - Серьезность: незначительная, значительная, критическая
+2. [Сводка] краткое описание проблем: ...
+3. [Рекомендации]: рекомендации по ремонту или замене компонентов ...
+
+Если вы не обнаружите никаких проблем, пожалуйста, используйте следующий шаблон ответа:
+
+1. [Выявленные проблемы]: отсутствуют
+2. [Сводка] краткое описание того, что показано на изображении ...
+3. [Рекомендации]: отсутствуют
+
+`;
 
     let result;
 
-    if (image_url) {
+    if (image_url)
+    {
       const imageResponse = await fetch(image_url);
       const imageData = await imageResponse.arrayBuffer();
       const imageMimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
@@ -34,7 +66,8 @@ ${instruction}
       result = await model.generateContent([prompt, imagePart]);
 
       console.log(result);
-    } else {
+    } else
+    {
       result = await model.generateContent(prompt);
     }
 
@@ -42,7 +75,8 @@ ${instruction}
     const text = response.text();
 
     return NextResponse.json({ text });
-  } catch (error) {
+  } catch (error)
+  {
     console.error('Error processing AI request:', error);
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
   }
