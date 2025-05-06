@@ -53,6 +53,19 @@
     "captions_to_check": "Captions to check",
     "clear_target_user": "Clear target user",
     "inital_version": "Initial version",
-    "new_version": "New version"
+    "new_version": "New version",
+    "ai_chat": "AI generation",
+    "enter_message": "Enter message",
+    "enter_message_to_generate": "Enter message to generate",
+    "send": "Send",
+    "close": "Close",
+    "note_for_ai_to_generate": "Note for AI to generate",
+    "topic": "Topic",
+    "model": "Model",
+    "status": "Status",
+    "condition": "Condition",
+    "odometer": "Odometer",
+    "ai_generated_text": "AI generated text",
+    "accept": "Accept"
   }
 }

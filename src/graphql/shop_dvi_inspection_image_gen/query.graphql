@@ -1,0 +1,25 @@
+query GetInspectionImageGenByImageId($inspection_image_id: Int!) {
+  shop_dvi_inspection_image_gen(where: { inspection_image_id: { _eq: $inspection_image_id } }) {
+    topicResultRel {
+      name
+      topicResultInspectionTopicResultConditionsRel {
+        conditionRel {
+          name
+          id
+        }
+      }
+      statusRel {
+        color
+        id
+        name
+      }
+      notes
+      inspectionRel {
+        odometer
+        vehicle_year
+        vehicle_model
+        vehicle_make
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Bold, Italic, ListOrdered, RemoveFormatting, Underline as UnderlineIcon } from 'lucide-react';
+import { Bold, Italic, ListOrdered, RemoveFormatting, Stars, Underline as UnderlineIcon } from 'lucide-react';
 import { useDictionary } from './dictionary-provider';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -29,6 +29,8 @@ import { useState } from 'react';
 import { Markdown } from 'tiptap-markdown';
 import { LoadingSpinner } from './ui/loading-spinner';
 import { UserSelect } from './user-select';
+import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from './ui/drawer';
+import AIChat from './ai-chat';
 
 const buttonStyle = {
   base: 'flex items-center justify-center h-8 w-8 border rounded-md cursor-pointer hover:bg-background-secondary shadow-2xs',
@@ -42,6 +44,7 @@ export function Editor({
   userRoleId,
   refetchUserCaption,
   refetchFreeCaption,
+  imageUrl,
 }: {
   content: string;
   captionId: number;
@@ -49,10 +52,12 @@ export function Editor({
   userRoleId: number;
   refetchUserCaption: any;
   refetchFreeCaption: any;
+  imageUrl: string;
 }) {
   const t = useDictionary();
   const [loading, setLoading] = useState(false);
   const [tagetUserId] = useAtom(targetUserIdAtom);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const editor = useEditor(
     {
       extensions: [
@@ -242,6 +247,10 @@ export function Editor({
     setLoading(false);
   };
 
+  const setEditorText = (text: string) => {
+    editor?.commands.setContent(text);
+  };
+
   if (!editor) {
     return null;
   }
@@ -275,6 +284,35 @@ export function Editor({
             <ListOrdered className="h-4 w-4" />
           </div>
         </div>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          <DrawerTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              <Stars className="h-4 w-4" />
+              {t.Global.ai_chat}
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <div className="mx-auto w-full max-w-sm">
+              <DrawerHeader>
+                <DrawerTitle>{t.Global.ai_chat}</DrawerTitle>
+                {/* <DrawerDescription>{t.Global.enter_message_to_generate}</DrawerDescription> */}
+              </DrawerHeader>
+              <div className="p-4 pb-0">
+                <AIChat
+                  setDrawerOpen={setDrawerOpen}
+                  setEditorText={setEditorText}
+                  initialText={editor.storage.markdown.getMarkdown()}
+                  imageUrl={imageUrl}
+                />
+              </div>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline">{t.Global.close}</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </div>
+          </DrawerContent>
+        </Drawer>
         {/* <Button variant="outline" size="sm" onClick={() => editor.commands.insertContent(content)}>
           {t.Global.discard_changes}
         </Button> */}

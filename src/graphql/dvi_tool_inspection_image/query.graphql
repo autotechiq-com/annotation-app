@@ -1,0 +1,13 @@
+query GetInspectionImageById($id: bigint = "") {
+  dvi_tool_inspection_image(where: { id: { _eq: $id } }) {
+    condition_names
+    notes
+    status_color
+    status_name
+    topic_name
+    vehicle_make
+    vehicle_model
+    vehicle_year
+    odometer
+  }
+}
