@@ -9,7 +9,7 @@ export async function POST(request: Request)
   {
     const { initial_text, instruction, image_url } = await request.json();
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro-preview-03-25' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-04-17' });
 
     const prompt = `У пользователя есть описание изображения:
 ${initial_text}
