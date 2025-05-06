@@ -6,6 +6,7 @@ import { useDictionary } from './dictionary-provider';
 import { Textarea } from './ui/textarea';
 import { Alert } from './ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 
 interface AIChatProps {
   initialText: string;
@@ -65,7 +66,9 @@ export default function AIChat({ initialText, imageUrl, setEditorText, setDrawer
         <div className="flex flex-col gap-2">
           <h3 className="font-medium">{t.Global.ai_generated_text}:</h3>
           <div className="p-4 bg-gray-100 rounded">
-            <p className="whitespace-pre-wrap text-sm">{response}</p>
+            <ScrollArea>
+              <p className="whitespace-pre-wrap text-sm h-fit max-h-[400px]">{response}</p>
+            </ScrollArea>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Button

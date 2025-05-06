@@ -292,7 +292,7 @@ export function Editor({
             </Button>
           </DrawerTrigger>
           <DrawerContent>
-            <div className="mx-auto w-full max-w-sm">
+            <div className="mx-auto w-full max-w-lg">
               <DrawerHeader>
                 <DrawerTitle>{t.Global.ai_chat}</DrawerTitle>
                 {/* <DrawerDescription>{t.Global.enter_message_to_generate}</DrawerDescription> */}
