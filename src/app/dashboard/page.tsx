@@ -24,6 +24,7 @@ import { useDictionary } from '@/components/dictionary-provider';
 import { Comment } from '@/components/comment';
 import { Logs } from '@/components/logs';
 import { CaptionCounter } from '@/components/caption-counter';
+import { TopicInfo } from '@/components/topic-info';
 
 export default function DashboardMainPage() {
   const t = useDictionary();
@@ -59,8 +60,6 @@ export default function DashboardMainPage() {
     queryFn: () => fetchClient<GetCaptionWithoutUserIdQuery>({ query: GetCaptionWithoutUserId }),
     refetchOnWindowFocus: true,
   });
-
-  console.log('freeCaption', freeCaption);
 
   async function updateCaption() {
     await fetchClient<UpdateAnnotationCaptionMutation>({
@@ -135,6 +134,8 @@ export default function DashboardMainPage() {
     );
   }
 
+  console.log(userCaption?.annotation_caption);
+
   return (
     <Container className="relative pt-20 h-full grid grid-cols-[1fr_2fr_1fr] gap-6">
       <div className="flex flex-col gap-6">
@@ -143,12 +144,13 @@ export default function DashboardMainPage() {
             <CaptionCounter userId={user?.annotation_user?.[0]?.id ?? 0} />
           </CardContent>
         </Card>
-        <Card className="shadow-none h-fit max-h-[calc(100vh-150px)]">
-          <CardContent>
+        <Card className="shadow-none h-fit">
+          <CardContent className="flex flex-col gap-4">
+            <TopicInfo inspectionImageId={userCaption?.annotation_caption?.[0]?.inspection_image_id ?? 0} />
             <ImagePreview src={`${process.env.NEXT_PUBLIC_IMAGES_ORIGIN}/${userCaption?.annotation_caption?.[0]?.image_path}`} />
           </CardContent>
         </Card>
-        <Card className="shadow-none h-fit max-h-[calc(100vh-150px)]">
+        <Card className="shadow-none h-fit max-h-[20vh]">
           <CardContent>
             <Logs captionId={userCaption?.annotation_caption?.[0]?.id ?? 0} captionData={userCaption?.annotation_caption?.[0]} />
           </CardContent>
@@ -163,6 +165,7 @@ export default function DashboardMainPage() {
             captionId={userCaption?.annotation_caption?.[0]?.id ?? 0}
             userId={user?.annotation_user?.[0]?.id ?? 0}
             userRoleId={user?.annotation_user?.[0]?.role_id ?? 0}
+            imageUrl={`${process.env.NEXT_PUBLIC_IMAGES_ORIGIN}/${userCaption?.annotation_caption?.[0]?.image_path}`}
           />
         </CardContent>
       </Card>
